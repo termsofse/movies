@@ -57,15 +57,55 @@
         .movie-card:active {
             transform: translateY(0);
         }
+
+        .error-msg {
+            color: #888;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
 
     <h1>Movies</h1>
 
-    <div class="movie-grid">
-        <a href="movies/rio/" class="movie-card">Rio</a>
+    <div class="movie-grid" id="movie-grid">
+        <span class="error-msg">Loading movies...</span>
     </div>
+
+    <script>
+        async function loadMovies() {
+            const grid = document.getElementById('movie-grid');
+            
+            try {
+                // Fetch the JSON manifest tracking the directories
+                const response = await fetch('movies.json');
+                if (!response.ok) throw new Error('Could not load movies.json');
+                
+                const movies = await response.json();
+                grid.innerHTML = '';
+
+                if (movies.length === 0) {
+                    grid.innerHTML = '<span class="error-msg">No movies found.</span>';
+                    return;
+                }
+
+                movies.forEach(movie => {
+                    const card = document.createElement('a');
+                    card.href = movie.path; // Looks up exact directory path from JSON
+                    card.className = 'movie-card';
+                    card.textContent = movie.title; // Clean, properly capitalized title
+                    grid.appendChild(card);
+                });
+
+            } catch (err) {
+                console.warn('movies.json not found or failed, falling back to directory listing scan...');
+                // Fallback: Try fetching index of movies folder or display setup guidance
+                grid.innerHTML = '<span class="error-msg">Please ensure movies.json is generated or accessible.</span>';
+            }
+        }
+
+        loadMovies();
+    </script>
 
 </body>
 </html>
