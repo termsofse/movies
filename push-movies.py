@@ -34,19 +34,6 @@ def shutil_which(tool):
     from shutil import which
     return which(tool) is not None
 
-def setup_gitignore():
-    """Ensure movies-full/ is listed in .gitignore."""
-    gitignore_path = Path(".gitignore")
-    entries = []
-    if gitignore_path.exists():
-        entries = gitignore_path.read_text(encoding="utf-8").splitlines()
-    
-    cleaned_entries = [e.strip() for e in entries]
-    if MOVIES_FULL_DIR not in cleaned_entries and f"/{MOVIES_FULL_DIR}" not in cleaned_entries:
-        print(f"Adding {MOVIES_FULL_DIR}/ to .gitignore")
-        with open(gitignore_path, "a", encoding="utf-8") as f:
-            f.write(f"\n{MOVIES_FULL_DIR}/\n")
-
 def generate_hls(input_video_path, output_dir):
     """Segment a movie into HLS (.m3u8 and .ts files) with a progress indicator."""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -142,7 +129,6 @@ def git_commit_and_push(batch_files, commit_message):
 
 def process_movies():
     check_dependencies()
-    setup_gitignore()
 
     full_dir = Path(MOVIES_FULL_DIR)
     out_base = Path(MOVIES_OUTPUT_DIR)
